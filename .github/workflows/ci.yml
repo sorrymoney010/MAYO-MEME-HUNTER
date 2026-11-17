@@ -1,0 +1,26 @@
+name: Paper-only tests
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install project
+        run: python -m pip install -e .
+      - name: Offline tests (no keys, no execution)
+        run: python -m unittest discover -s tests -v
+      - name: Synthetic replay smoke test
+        run: |
+          mayo-meme replay --file examples/sample_snapshots.jsonl --out results/demo.json
+          mayo-meme dashboard --file results/demo.json --out results/dashboard.html
