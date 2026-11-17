@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mayo-meme-hunter"
-version = "0.1.0"
+version = "0.2.0"
 description = "Paper-only Solana meme-coin discovery and replay engine"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = ["websockets>=12,<16"]
 
 [project.scripts]
 mayo-meme = "mayo_meme_hunter.cli:main"
