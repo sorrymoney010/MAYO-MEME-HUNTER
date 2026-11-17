@@ -1,17 +1,7 @@
 # Security policy — MAYO MEME HUNTER
 
-**Paper-only.** No wallet signing, transaction submission, private-key handling,
-order-placement endpoints, or automated money transfers are implemented.
+This is a standalone Solana meme-coin project. Never commit seed phrases, private keys, signing credentials, API secrets or wallet backups. Do not request them in chat.
 
-Never commit seed phrases, secret keys, RPC credentials, access tokens, or
-transaction signing material. `.env` and likely key files are ignored.
-Git history can retain secrets even after deletion; rotate a leaked key.
+The execution scaffold does not sign transactions. Live trading is OFF by default. Before activation require an isolated signer, instruction decoding/allowlisting, per-trade and daily caps, fresh quotes, sell-route checks, loss limits, kill switch, append-only ledger and on-chain reconciliation.
 
-DEX Screener discovery is read-only and security data is incomplete.
-Unknown on-chain authorities, ownership clustering, and sellability must
-fail closed. A simulated paper sell is not a confirmed executable sale.
-
-Before introducing any real trading adapter, require independent security
-review, exact amount/fee caps, single-use order IDs, ledger reconciliation,
-emergency pause controls, and **fresh explicit owner approval**. Never
-unlock Mayo Kraken Trader as a side effect.
+Never sign arbitrary transactions, arbitrary transfers, or withdrawal instructions. Unknown security facts fail closed. Quotes are not guaranteed fills; submitted transactions can fail or execute at a different effective price. Rotate any leaked credential immediately.
