@@ -1,41 +1,40 @@
 # MAYO MEME HUNTER — Snag & Go
 
-Independent Solana meme-coin discovery, analysis and automated-trading agent.
+Independent Solana meme-coin discovery and autonomous-trading project. **Proposed owner wallet: a dedicated Phantom account.**
 
-**Target behavior:** discover tokens, verify risk, buy qualified candidates, monitor positions, sell, and reconcile on-chain results. Live trading remains OFF until an isolated signer and all safety controls are complete.
+**Live trading is hard-disabled.** This build can collect and analyze data, paper trade, and prepare Jupiter quotes. It cannot sign or submit a real transaction.
 
-## Current modules
+## Capabilities
 - PumpPortal launch/migration collector (read-only).
 - Solana RPC mint inspection (partial; Token-2022 extensions not decoded).
 - DEX Screener discovery.
 - Fee-aware paper trading, risk controls, wallet-history research and offline dashboard.
-- Jupiter Swap API V2 order/execute boundary with hard policy caps and stale-signal/security gates. It accepts externally signed transactions but contains no signer or private-key handling.
+- Jupiter Swap API V2 quote preparation with candidate/security/sellability gates.
+- Phantom isolated-signing design in [PHANTOM_SIGNING.md](PHANTOM_SIGNING.md).
 - Offline tests and CI.
 
+## Wallet model
+Use a new, dedicated MAYO account in Phantom, separate from long-term holdings. Never share or export the recovery phrase/private key to the agent. Start with owner-reviewed Phantom signatures. Phantom documents Auto-Confirm for certain supported apps (including Jupiter), but MAYO must not assume it is supported; if Phantom does not show Auto-Confirm for MAYO, the integration remains manual. The documented Auto-Confirm session is limited to up to 10 transactions/minute for two hours and can be revoked.
+
+If 24/7 autonomous signing is not supported through Phantom's official connection mechanism, the alternative is a separate KMS/HSM/MPC-managed low-balance trading wallet, with Phantom retained as the owner's oversight wallet. That is a separate approval decision.
+
 ## Install and test
-\`\`\`bash
+```bash
 git clone https://github.com/sorrymoney010/MAYO-MEME-HUNTER.git
 cd MAYO-MEME-HUNTER
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e .
 python -m unittest discover -s tests -v
-\`\`\`
+```
 
-## V2 commands
-\`\`\`bash
+## Commands
+```bash
 mayo-meme stream --out data/solana_events.jsonl
 mayo-meme inspect-mint --mint YOUR_TOKEN_MINT
 mayo-meme scan --limit 10
 mayo-meme replay --file examples/sample_snapshots.jsonl
-\`\`\`
+```
 
-## Autonomous trading architecture
-The intended pipeline is discovery -> security screening -> strategy signal -> fresh Jupiter quote -> isolated signer -> swap execution -> position monitoring -> automatic sell -> on-chain reconciliation.
-
-The scaffold's hard ceilings are 0.05 SOL per buy, 0.20 SOL total daily buys, 5% price impact, 10-second signal freshness and two open positions. These are code ceilings, not an instruction to fund or activate the bot. The live switch is OFF by default.
-
-Jupiter Swap API V2 uses \`GET /swap/v2/order\` for a quote and assembled unsigned transaction and \`POST /swap/v2/execute\` to land a signed transaction. See [Jupiter Swap API](https://developers.jup.ag/docs/swap) and [Order & Execute](https://developers.jup.ag/docs/swap/order-and-execute).
-
-## Not live-ready yet
-The signer is not implemented. We still need full Token-2022 and holder/creator analysis, real-time price/liquidity snapshots, durable event/position storage, automatic exit execution, restart-safe loss limits, transaction decoding/allowlisting, simulation, reconciliation, devnet testing and independent security review. Never paste a seed phrase/private key into source, chat, or configuration files.
+## Not live-ready
+The signer, transaction parser/allowlist, persistent atomic spend ledger, full token-security analysis, live market snapshots, position monitor, automatic sell execution, daily-loss stop, transaction reconciliation and independent security review are not complete. Do not add private keys to source or environment files. See the signing design before implementing any wallet integration.
