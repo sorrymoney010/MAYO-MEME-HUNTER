@@ -6,8 +6,8 @@ Build a durable evidence base for MAYO MEME HUNTER. This phase is research-only:
 ## Data flow
 1. Capture PumpPortal create/migration events with `mayo-meme stream --out data/solana_events.jsonl`.
 2. Run the built-in DEX Screener polling adapter against the collected launch list:
-   `mayo-meme collect-snapshots --events data/solana_events.jsonl --out data/market_snapshots.jsonl --interval 300 --max-tokens 20`
-   Stop it with Ctrl-C. Use `--seconds 3600` for a bounded one-hour run. It polls at most 30 recent mints and defaults to one request per mint every five minutes.
+   `mayo-meme collect-snapshots --events data/solana_events.jsonl --out data/market_snapshots.jsonl --interval 60 --max-tokens 20`
+   Stop it with Ctrl-C. Use `--seconds 3600` for a bounded one-hour run. It polls at most 30 recent mints and defaults to one request per mint every minute.
 3. The collector writes timestamped price, liquidity, 5-minute volume, buys/sells, and pool provenance. Unique buyers and holder/creator concentration remain unknown, not inferred. A manual/replay source can also be used. Each JSONL row needs `mint`, `ts` (Unix epoch seconds or ISO-8601), and positive `price_usd`. Optional features include liquidity, 5-minute volume, buys/sells, unique buyers, top-10/creator percentages, and 5-minute price change.
 4. Import events and snapshots:
    `mayo-meme research ingest --events data/solana_events.jsonl --snapshots data/market_snapshots.jsonl`
@@ -21,7 +21,7 @@ Build a durable evidence base for MAYO MEME HUNTER. This phase is research-only:
 The default database is `data/research.sqlite3`. Use `--db PATH` on each research command to select another database.
 
 ## Label methodology
-The entry is the first recorded snapshot at or after a launch event. For each horizon (1, 5, 10, 15, 30, 60 minutes), the exit is the first recorded snapshot at or after entry plus the horizon, within the configured maximum lag. By default, the first market snapshot must arrive within 120 seconds of the launch event (`--max-entry-delay-seconds`); otherwise all horizons for that event are marked incomplete. The label stores entry/exit timestamps and prices, forward return, maximum run-up, maximum drawdown, and event-to-entry capture delay. Snapshots before the event are excluded. Missing horizon observations are incomplete, not zero-return outcomes.
+The entry is the first recorded snapshot at or after a launch event. For each horizon (1, 5, 10, 15, 30, 60 minutes), the exit is the first recorded snapshot at or after entry plus the horizon, within the configured maximum lag. By default, the first market snapshot must arrive within 120 seconds of the launch event (`--max-entry-delay-seconds`); otherwise all horizons for that event are marked incomplete. The label stores entry/exit timestamps and prices, forward return, maximum run-up, maximum drawdown, and event-to-entry capture delay. Snapshots before the event are excluded. The first snapshot must arrive within 120 seconds by default (`--max-entry-delay-seconds`); later first observations are excluded from early-entry labels. Missing horizon observations are incomplete, not zero-return outcomes.
 
 ## Experiments
 V1 compares three predeclared cohorts: all labeled events, liquidity/volume floor, and buy-pressure/momentum. It reports sample size, mean/median return, positive rate, and mean maximum drawdown. Fewer than 30 samples is marked insufficient. These are descriptive research comparisons, not profitable strategy claims.
