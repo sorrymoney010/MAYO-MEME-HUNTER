@@ -94,6 +94,6 @@ def main() -> None:
         data={"mode":"WALLET_RESEARCH_ONLY","wallets":analyze_wallet_events(read_jsonl(args.file))}
     output=json.dumps(data,indent=2); print(output)
     if args.out:
-        args.out.parent.mkdir(parents=True,exist_ok=True); args.out.write_text(output+"\\n",encoding="utf-8")
+        args.out.parent.mkdir(parents=True,exist_ok=True); args.out.write_text(output+"\n",encoding="utf-8")
 
 if __name__=="__main__": main()
