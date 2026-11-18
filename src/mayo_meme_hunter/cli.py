@@ -39,7 +39,7 @@ def main() -> None:
     p=sub.add_parser("collect-snapshots",help="Poll recent PumpPortal mints for read-only DEX market snapshots")
     p.add_argument("--events",type=Path,default=Path("data/solana_events.jsonl"))
     p.add_argument("--out",type=Path,default=Path("data/market_snapshots.jsonl"))
-    p.add_argument("--interval",type=int,default=300); p.add_argument("--max-tokens",type=int,default=20)
+    p.add_argument("--interval",type=int,default=60); p.add_argument("--max-tokens",type=int,default=20)
     p.add_argument("--seconds",type=float,default=0,help="0 means run until interrupted")
     p=sub.add_parser("research",help="Ingest evidence, label outcomes, and compare research rules")
     rp=p.add_subparsers(dest="research_cmd",required=True)
