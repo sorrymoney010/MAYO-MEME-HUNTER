@@ -11,6 +11,7 @@ dependencies = ["websockets>=12,<16"]
 
 [project.scripts]
 mayo-meme = "mayo_meme_hunter.cli:main"
+mayo-night-shift = "mayo_meme_hunter.night_shift_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
