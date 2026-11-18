@@ -86,7 +86,7 @@ def load_recent_mints(events_path: Path, limit: int = 20) -> list[str]:
     return list(seen)[-limit:]
 
 
-def collect_snapshots(events_path: Path, output_path: Path, interval_seconds: int = 300,
+def collect_snapshots(events_path: Path, output_path: Path, interval_seconds: int = 60,
                       max_tokens: int = 20, duration_seconds: float | None = None,
                       fetcher: Callable[[str], list[dict[str, Any]]] = _get_pairs,
                       sleep: Callable[[float], None] = time.sleep) -> dict[str, Any]:
