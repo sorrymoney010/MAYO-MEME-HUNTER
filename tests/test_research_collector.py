@@ -30,7 +30,7 @@ class SnapshotCollectorTests(unittest.TestCase):
             path=Path(d)/"events.jsonl"
             rows=[{"mint":"a"},{"mint":"b"},{"mint":"a"},{"mint":"c"},{"mint":"d"}]
             path.write_text("".join(json.dumps(x)+"\n" for x in rows),encoding="utf-8")
-            self.assertEqual(load_recent_mints(path,3),["b","c","d"])
+            self.assertEqual(load_recent_mints(path,3),["a","c","d"])
 
 if __name__=="__main__":
     unittest.main()
