@@ -5,14 +5,17 @@ Build a durable evidence base for MAYO MEME HUNTER. This phase is research-only:
 
 ## Data flow
 1. Capture PumpPortal create/migration events with `mayo-meme stream --out data/solana_events.jsonl`.
-2. Collect timestamped market snapshots from a source adapter or replay export. Each JSONL row needs `mint`, `ts` (Unix epoch seconds or ISO-8601), and positive `price_usd`. Optional features include liquidity, 5-minute volume, buys/sells, unique buyers, top-10/creator percentages, and 5-minute price change.
-3. Import events and snapshots:
+2. Run the built-in DEX Screener polling adapter against the collected launch list:
+   `mayo-meme collect-snapshots --events data/solana_events.jsonl --out data/market_snapshots.jsonl --interval 300 --max-tokens 20`
+   Stop it with Ctrl-C. Use `--seconds 3600` for a bounded one-hour run. It polls at most 30 recent mints and defaults to one request per mint every five minutes.
+3. The collector writes timestamped price, liquidity, 5-minute volume, buys/sells, and pool provenance. Unique buyers and holder/creator concentration remain unknown, not inferred. A manual/replay source can also be used. Each JSONL row needs `mint`, `ts` (Unix epoch seconds or ISO-8601), and positive `price_usd`. Optional features include liquidity, 5-minute volume, buys/sells, unique buyers, top-10/creator percentages, and 5-minute price change.
+4. Import events and snapshots:
    `mayo-meme research ingest --events data/solana_events.jsonl --snapshots data/market_snapshots.jsonl`
-4. Build forward labels:
+5. Build forward labels:
    `mayo-meme research label --max-lag-seconds 180`
-5. Review data coverage and outcome summaries:
+6. Review data coverage and outcome summaries:
    `mayo-meme research report`
-6. Compare predeclared baseline rules:
+7. Compare predeclared baseline rules:
    `mayo-meme research study --horizon 5`
 
 The default database is `data/research.sqlite3`. Use `--db PATH` on each research command to select another database.
