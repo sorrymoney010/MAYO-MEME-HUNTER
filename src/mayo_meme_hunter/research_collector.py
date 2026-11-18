@@ -27,7 +27,9 @@ def _get_pairs(mint: str) -> list[dict[str, Any]]:
 
 def snapshot_for_mint(mint: str, fetcher: Callable[[str], list[dict[str, Any]]] = _get_pairs,
                       observed_at: float | None = None) -> dict[str, Any] | None:
-    pairs = fetcher(mint)
+    pairs = [pair for pair in fetcher(mint)
+             if pair.get("chainId") == "solana"
+             and (pair.get("baseToken") or {}).get("address") == mint]
     if not pairs:
         return None
     def liquidity(pair):
