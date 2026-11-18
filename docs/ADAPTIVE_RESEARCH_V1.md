@@ -21,7 +21,7 @@ Build a durable evidence base for MAYO MEME HUNTER. This phase is research-only:
 The default database is `data/research.sqlite3`. Use `--db PATH` on each research command to select another database.
 
 ## Label methodology
-The entry is the first recorded snapshot at or after a launch event. For each horizon (1, 5, 10, 15, 30, 60 minutes), the exit is the first recorded snapshot at or after entry plus the horizon, within the configured maximum lag. The label stores entry/exit timestamps and prices, forward return, maximum run-up, maximum drawdown, and event-to-entry capture delay. Snapshots before the event are excluded. Missing horizon observations are incomplete, not zero-return outcomes.
+The entry is the first recorded snapshot at or after a launch event. For each horizon (1, 5, 10, 15, 30, 60 minutes), the exit is the first recorded snapshot at or after entry plus the horizon, within the configured maximum lag. By default, the first market snapshot must arrive within 120 seconds of the launch event (`--max-entry-delay-seconds`); otherwise all horizons for that event are marked incomplete. The label stores entry/exit timestamps and prices, forward return, maximum run-up, maximum drawdown, and event-to-entry capture delay. Snapshots before the event are excluded. Missing horizon observations are incomplete, not zero-return outcomes.
 
 ## Experiments
 V1 compares three predeclared cohorts: all labeled events, liquidity/volume floor, and buy-pressure/momentum. It reports sample size, mean/median return, positive rate, and mean maximum drawdown. Fewer than 30 samples is marked insufficient. These are descriptive research comparisons, not profitable strategy claims.
@@ -38,6 +38,6 @@ V1 compares three predeclared cohorts: all labeled events, liquidity/volume floo
 - Include fees, slippage, failed sells, and executable-size liquidity before evaluating paper expectancy. V1 labels are mark-price research, not executable fills.
 
 ## V1 limitations
-The existing PumpPortal collector captures create/migration events but does not yet provide continuous per-mint price snapshots. A snapshot collector and provenance/coverage monitor are required before meaningful learning curves or strategy claims can be produced. Wallet clustering, developer-history attribution, Token-2022 extension analysis, and bundle detection remain separate future research adapters.
+The PumpPortal collector captures create/migration events, and the DEX Screener adapter now polls recent event mints for market snapshots. It is a bounded watchlist collector, not a guaranteed complete market tape: it can miss launches outside the recent-mint cap, pools with no DEX pair yet, short-lived price moves between polls, and data during downtime. A durable supervisor, gap/coverage monitor, and richer provenance checks are required before meaningful learning curves or strategy claims can be produced. Wallet clustering, developer-history attribution, Token-2022 extension analysis, and bundle detection remain separate future research adapters.
 
 All outputs include `execution_enabled: false`. MAYO MEME HUNTER remains isolated from Mayo Kraken Trader.
