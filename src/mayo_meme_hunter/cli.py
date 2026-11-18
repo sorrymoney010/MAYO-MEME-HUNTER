@@ -9,6 +9,7 @@ from .wallets import analyze_wallet_events
 from .rpc import SolanaRPC
 from .stream import collect
 from .research import ResearchStore
+from .research_collector import collect_snapshots
 
 def read_jsonl(path: Path) -> list[dict]:
     rows=[]
@@ -35,6 +36,11 @@ def main() -> None:
     p.add_argument("--file",type=Path,required=True); p.add_argument("--out",type=Path)
     p=sub.add_parser("dashboard",help="Generate static offline HTML")
     p.add_argument("--file",type=Path,required=True); p.add_argument("--out",type=Path,required=True)
+    p=sub.add_parser("collect-snapshots",help="Poll recent PumpPortal mints for read-only DEX market snapshots")
+    p.add_argument("--events",type=Path,default=Path("data/solana_events.jsonl"))
+    p.add_argument("--out",type=Path,default=Path("data/market_snapshots.jsonl"))
+    p.add_argument("--interval",type=int,default=300); p.add_argument("--max-tokens",type=int,default=20)
+    p.add_argument("--seconds",type=float,default=0,help="0 means run until interrupted")
     p=sub.add_parser("research",help="Ingest evidence, label outcomes, and compare research rules")
     rp=p.add_subparsers(dest="research_cmd",required=True)
     q=rp.add_parser("ingest",help="Import event and/or market snapshot JSONL")
@@ -49,6 +55,9 @@ def main() -> None:
     q.add_argument("--db",type=Path,default=Path("data/research.sqlite3"))
     q.add_argument("--horizon",type=int,default=5)
     args=parser.parse_args()
+    if args.cmd=="collect-snapshots":
+        data=collect_snapshots(args.events,args.out,args.interval,args.max_tokens,args.seconds or None)
+        print(json.dumps(data,indent=2)); return
     if args.cmd=="research":
         store=ResearchStore(args.db)
         if args.research_cmd=="ingest":
