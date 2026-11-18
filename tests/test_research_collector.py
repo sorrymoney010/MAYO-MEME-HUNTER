@@ -29,7 +29,7 @@ class SnapshotCollectorTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             path=Path(d)/"events.jsonl"
             rows=[{"mint":"a"},{"mint":"b"},{"mint":"a"},{"mint":"c"},{"mint":"d"}]
-            path.write_text("".join(json.dumps(x)+"\\n" for x in rows),encoding="utf-8")
+            path.write_text("".join(json.dumps(x)+"\n" for x in rows),encoding="utf-8")
             self.assertEqual(load_recent_mints(path,3),["b","c","d"])
 
 if __name__=="__main__":
