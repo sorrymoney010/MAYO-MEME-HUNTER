@@ -177,7 +177,7 @@ class ResearchStore:
         return {"inserted": inserted, "rejected": rejected}
 
     def build_labels(self, horizons: Iterable[int] = DEFAULT_HORIZONS_MINUTES,
-                     max_lag_seconds: int = 180) -> dict[str, int]:
+                     max_lag_seconds: int = 180, max_entry_delay_seconds: int = 120) -> dict[str, int]:
         """Label only when an observed snapshot exists at/after each horizon.
 
         Entry is the first observed price snapshot at or after the launch event.
@@ -186,8 +186,8 @@ class ResearchStore:
         """
         created = skipped = 0
         hs = tuple(sorted(set(int(h) for h in horizons)))
-        if not hs or any(h <= 0 for h in hs) or max_lag_seconds < 0:
-            raise ValueError("horizons and max_lag_seconds must be positive/nonnegative")
+        if not hs or any(h <= 0 for h in hs) or max_lag_seconds < 0 or max_entry_delay_seconds < 0:
+            raise ValueError("horizons and delay limits must be positive/nonnegative")
         with self._connect() as db:
             events = db.execute("SELECT * FROM launch_events ORDER BY observed_at,id").fetchall()
             for event in events:
@@ -198,6 +198,9 @@ class ResearchStore:
                     skipped += len(hs)
                     continue
                 entry = snaps[0]
+                if entry["ts"] - event["observed_at"] > max_entry_delay_seconds:
+                    skipped += len(hs)
+                    continue
                 for horizon in hs:
                     target = entry["ts"] + horizon * 60
                     exit_row = next((s for s in snaps if target <= s["ts"] <= target + max_lag_seconds), None)
