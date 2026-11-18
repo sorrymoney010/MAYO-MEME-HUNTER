@@ -43,6 +43,15 @@ class AdaptiveResearchTests(unittest.TestCase):
         self.assertEqual(self.store.build_labels(horizons=[5]), {"created":0,"skipped_incomplete":1})
         self.assertEqual(self.store.report()["counts"]["outcome_labels"],0)
 
+    def test_late_first_snapshot_is_not_mislabeled_as_early_entry(self):
+        self.store.ingest_events([{"event_type":"create","mint":"mint-late","observed_at":100,"signature":"s"}])
+        self.store.ingest_snapshots([
+            {"mint":"mint-late","ts":500,"price_usd":1,"source":"fixture"},
+            {"mint":"mint-late","ts":800,"price_usd":2,"source":"fixture"}
+        ])
+        result=self.store.build_labels(horizons=[5],max_entry_delay_seconds=120)
+        self.assertEqual(result, {"created":0,"skipped_incomplete":1})
+
     def test_rule_study_is_descriptive_and_execution_disabled(self):
         self.store.ingest_events([{"event_type":"create","mint":"mint-c","observed_at":100,"signature":"s"}])
         self.store.ingest_snapshots([
