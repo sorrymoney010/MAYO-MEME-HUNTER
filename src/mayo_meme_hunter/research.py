@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from contextlib import contextmanager
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -100,13 +101,21 @@ class ResearchStore:
             db.execute("INSERT OR REPLACE INTO metadata(key,value) VALUES('schema_version',?)",
                        (str(SCHEMA_VERSION),))
 
+    @contextmanager
     def _connect(self):
         db = sqlite3.connect(self.path, timeout=20)
         db.row_factory = sqlite3.Row
         db.execute("PRAGMA journal_mode=WAL")
         db.execute("PRAGMA busy_timeout=20000")
         db.execute("PRAGMA foreign_keys=ON")
-        return db
+        try:
+            yield db
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
 
     def ingest_events(self, rows: Iterable[dict[str, Any]]) -> dict[str, int]:
         inserted = rejected = 0
@@ -128,7 +137,7 @@ class ResearchStore:
                         (provider,event_type,mint,observed_at,creator,signature,payload_json)
                         VALUES(?,?,?,?,?,?,?)""",
                         (provider, kind, mint, observed, row.get("creator"),
-                         row.get("signature"), json.dumps(row, sort_keys=True, default=str)))
+                         str(row.get("signature") or ""), json.dumps(row, sort_keys=True, default=str)))
                     inserted += cursor.rowcount
                 except (TypeError, ValueError, OverflowError):
                     rejected += 1
