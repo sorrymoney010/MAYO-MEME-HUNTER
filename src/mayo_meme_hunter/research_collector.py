@@ -79,6 +79,7 @@ def load_recent_mints(events_path: Path, limit: int = 20) -> list[str]:
                 continue
             mint = row.get("mint") if isinstance(row, dict) else None
             if isinstance(mint, str) and mint:
+                seen.pop(mint, None)
                 seen[mint] = None
     return list(seen)[-limit:]
 
