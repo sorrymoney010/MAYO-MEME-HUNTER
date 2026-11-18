@@ -48,7 +48,7 @@ def main() -> None:
     q.add_argument("--events",type=Path); q.add_argument("--snapshots",type=Path)
     q=rp.add_parser("label",help="Build forward-only outcome labels")
     q.add_argument("--db",type=Path,default=Path("data/research.sqlite3"))
-    q.add_argument("--max-lag-seconds",type=int,default=180)
+    q.add_argument("--max-lag-seconds",type=int,default=180); q.add_argument("--max-entry-delay-seconds",type=int,default=120)
     q=rp.add_parser("report",help="Summarize research coverage and outcomes")
     q.add_argument("--db",type=Path,default=Path("data/research.sqlite3"))
     q=rp.add_parser("study",help="Compare predeclared research rules")
@@ -68,7 +68,7 @@ def main() -> None:
             if args.snapshots: data["snapshots"]=store.ingest_snapshots(read_jsonl(args.snapshots))
             data["database"]=str(args.db)
         elif args.research_cmd=="label":
-            data=store.build_labels(max_lag_seconds=args.max_lag_seconds)
+            data=store.build_labels(max_lag_seconds=args.max_lag_seconds,max_entry_delay_seconds=args.max_entry_delay_seconds)
         elif args.research_cmd=="study":
             data=store.run_rule_study(args.horizon)
         else:
